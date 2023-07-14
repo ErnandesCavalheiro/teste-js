@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-100'">
+                <input type="number" id="newData" />
+                <button onClick="insert()">Inclui</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-100">
+                <input type="number" id="search" />
+                <button onClick="search()">Busca</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-100">
+                <button onClick="sortedList()">Lista</button>
+                <button onClick="eraseTree()">Apaga</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tree" id="divRoot">
+        <ul id="ulRoot">
+        </ul>
+    </div>
+    <p id="console"></p>
+</body>
+<script>
+    var root = {
+        data: 15,
+        left: {
+            data: 6,
+            left: null,
+            right: null
+        },
+        right: {
+            data: 20,
+            left: {
+                data: 17,
+                left: null,
+                right: null
+            },
+            right: {
+                data: 25,
+                left: null,
+                right: null
+            }
+        }
+    };
+
+    function addNodeTree(element, node) {
+        let li = document.createElement("li");
+        let p = document.createElement("div");
+
+        p.innerHTML = node ? node.data : "null";
+        li.appendChild(p);
+        element.appendChild(li);
+
+        if (node) {
+            let ul = document.createElement("ul");
+            li.appendChild(ul);
+            addNodeTree(ul, node.left);
+            addNodeTree(ul, node.right);
+        }
+    }
+
+    function render() {
+        let tree = document.querySelector("#ulRoot");
+        tree.innerHTML = "";
+
+        if (root) {
+            addNodeTree(tree, root);
+        }
+    }
+
+    function eraseTree() {
+        root = null;
+        render();
+    }
+
+    function log(text) {
+        var console = document.querySelector("#console");
+        console.innerHTML = text;
+    }
+
+    function insert() {
+        let item = parseInt(document.querySelector("#newData").value);
+        root = insertNode(root, item);
+        render();
+    }
+
+    function insertNode(node, newNode) {
+        if (node == null) {
+            node = {
+                data: newNode,
+                left: null,
+                right: null
+            };
+
+            return node;
+        }
+
+        const result = searchInNode(node, newNode);
+
+        if (result) {
+            if (result.direction == 'left') {
+                result.node.left = { data: newNode, left: null, right: null };
+            } else {
+                result.node.right = { data: newNode, left: null, right: null };
+            }
+        }
+
+        return node;
+    }
+
+    function sortedList() {
+        let list = [];
+        inOrder(root, list);
+
+        let panel = document.querySelector("#console");
+        panel.innerHTML = `lista ${list.valueOf()}`;
+    }
+
+    function search() {
+        // dica para resolver usar um loop
+        let item = parseInt(document.querySelector("#search").value);
+        let current = root;
+
+        const result = searchInNode(current, item);
+
+        if (result) {
+            log(`${item} not exists in the tree`);
+        } else {
+            log(`${item} already exists in the tree`);
+        }
+    }
+
+    function searchInNode(node, newNode) {
+        if (newNode < node.data) {
+            if (node.left == null) {
+                log('');
+                return {
+                    node: node,
+                    direction: 'left'
+                };
+            }
+
+            return searchInNode(node.left, newNode);
+        }
+
+        if (newNode > node.data) {
+            if (node.right == null) {
+                log('');
+                return {
+                    node: node,
+                    direction: 'right'
+                };
+            }
+
+            return searchInNode(node.right, newNode);
+        }
+
+        if (newNode == node.data) {
+            log(`${newNode} already exists in the tree`)
+            return false;
+        }
+    }
+
+    function inOrder(node, result) {
+    if (node !== null) {
+        inOrder(node.left, result);
+        result.push(node.data);
+        inOrder(node.right, result);
+    }
+}
+
+    render();
+
+</script>
+
+</html>
